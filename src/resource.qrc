@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>fltClk.ico</file>
+    </qresource>
+</RCC>
