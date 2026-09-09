@@ -23,7 +23,7 @@ signals:
     void sigClkColorChanged(const QColor);
 
 private slots:
-    void onGeoChanged(void);
+    void onGeoEdited(void);
     void on_btnClockColor_clicked(void);
     virtual void accept() override;
     virtual void reject() override;
@@ -34,8 +34,11 @@ private:
 
     Ui::CSetting *ui;
     QString cfgFilePath(void) const;
-    QRect m_clkGeo = DEFAULT_CLK_GEO;
-    QColor m_clkColor = DEFAULT_CLK_COLOR;
+
+    struct {
+        QRect clkGeo;
+        QColor clkColor;
+    } m_cfg = {DEFAULT_CLK_GEO, DEFAULT_CLK_COLOR};
 };
 
 #endif // SETTING_H

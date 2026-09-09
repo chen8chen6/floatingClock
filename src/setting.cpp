@@ -13,10 +13,10 @@ CSetting::CSetting(QWidget *parent) :
     ui(new Ui::CSetting)
 {
     ui->setupUi(this);
-    connect(ui->xEditor, &QLineEdit::textChanged, this, &CSetting::onGeoChanged);
-    connect(ui->yEditor, &QLineEdit::textChanged, this, &CSetting::onGeoChanged);
-    connect(ui->widthEditor, &QLineEdit::textChanged, this, &CSetting::onGeoChanged);
-    connect(ui->heightEditor, &QLineEdit::textChanged, this, &CSetting::onGeoChanged);
+    connect(ui->xEditor, &QLineEdit::textEdited, this, &CSetting::onGeoEdited);
+    connect(ui->yEditor, &QLineEdit::textEdited, this, &CSetting::onGeoEdited);
+    connect(ui->widthEditor, &QLineEdit::textEdited, this, &CSetting::onGeoEdited);
+    connect(ui->heightEditor, &QLineEdit::textEdited, this, &CSetting::onGeoEdited);
 }
 
 CSetting::~CSetting()
@@ -28,6 +28,9 @@ CSetting::~CSetting()
 int CSetting::loadCfg()
 {
     //读配置文件, 失败则按黙认值配置
+    QRect clkGeoToSet = DEFAULT_CLK_GEO;
+    QColor clkColorToSet = DEFAULT_CLK_COLOR;
+
     QFile cfgFile(cfgFilePath());
     bool isSucc = false;
     do
@@ -59,25 +62,32 @@ int CSetting::loadCfg()
         if (!geoLoaded.isValid() || !colorLoaded.isValid())
             break;  //配置值错误
 
-        m_clkGeo = std::move(geoLoaded);
-        m_clkColor = std::move(colorLoaded);
+        clkGeoToSet = std::move(geoLoaded);
+        clkColorToSet = std::move(colorLoaded);
         isSucc = true;
     } while(0);
 
     //设置当前界面
-    ui->xEditor->setText(QString::number(m_clkGeo.x()));
-    ui->yEditor->setText(QString::number(m_clkGeo.y()));
-    ui->widthEditor->setText(QString::number(m_clkGeo.width()));
-    ui->heightEditor->setText(QString::number(m_clkGeo.height()));
+    /* QLineEdit::setText()会发射textChanged()信号, 触发onGeoChanged()信号槽引起m_cfg.clkGeo意外变化.
+     * 此次改动虽然将onGeoChanged()改为通过textEdited()信号触发, 但为防止类似情况再发生,
+     * m_cfg仅用于保存配置项, 不参与计算和传值 */
+    ui->xEditor->setText(QString::number(clkGeoToSet.x()));
+    ui->yEditor->setText(QString::number(clkGeoToSet.y()));
+    ui->widthEditor->setText(QString::number(clkGeoToSet.width()));
+    ui->heightEditor->setText(QString::number(clkGeoToSet.height()));
     QString styleSheet = QStringLiteral("background:rgb(%1,%2,%3)")
-            .arg(m_clkColor.red())
-            .arg(m_clkColor.green())
-            .arg(m_clkColor.blue());
+            .arg(clkColorToSet.red())
+            .arg(clkColorToSet.green())
+            .arg(clkColorToSet.blue());
     ui->btnClockColor->setStyleSheet(styleSheet);
 
     //设置时钟界面
-    emit sigGeoChanged(m_clkGeo);
-    emit sigClkColorChanged(m_clkColor);
+    emit sigGeoChanged(clkGeoToSet);
+    emit sigClkColorChanged(clkColorToSet);
+
+    //更新配置项
+    m_cfg.clkGeo = clkGeoToSet;
+    m_cfg.clkColor = clkColorToSet;
     return isSucc ? 0 : -1;
 }
 
@@ -88,13 +98,13 @@ int CSetting::saveCfg()
         return -1;
 
     QString cfgStr = QStringLiteral("(%1,%2,%3,%4);(%5,%6,%7)")
-            .arg(m_clkGeo.x())
-            .arg(m_clkGeo.y())
-            .arg(m_clkGeo.width())
-            .arg(m_clkGeo.height())
-            .arg(m_clkColor.red())
-            .arg(m_clkColor.green())
-            .arg(m_clkColor.blue());
+            .arg(m_cfg.clkGeo.x())
+            .arg(m_cfg.clkGeo.y())
+            .arg(m_cfg.clkGeo.width())
+            .arg(m_cfg.clkGeo.height())
+            .arg(m_cfg.clkColor.red())
+            .arg(m_cfg.clkColor.green())
+            .arg(m_cfg.clkColor.blue());
     cfgFile.write(cfgStr.toStdString().c_str());
 
     return 0;
@@ -109,17 +119,17 @@ void CSetting::init(const QRect &rect)
     return;
 }
 
-void CSetting::onGeoChanged()
+void CSetting::onGeoEdited()
 {
     QRect newGeo(ui->xEditor->text().toInt(),
                  ui->yEditor->text().toInt(),
                  ui->widthEditor->text().toInt(),
                  ui->heightEditor->text().toInt());
-    if (!newGeo.isValid())
+    if (!newGeo.isValid() || newGeo == m_cfg.clkGeo)
         return;
 
-    m_clkGeo = newGeo;
     emit sigGeoChanged(newGeo);
+    m_cfg.clkGeo = newGeo;
     return;
 }
 
@@ -129,8 +139,8 @@ void CSetting::on_btnClockColor_clicked()
     if (!clkColor.isValid())
         return;
 
-    m_clkColor = clkColor;
     emit sigClkColorChanged(clkColor);
+    m_cfg.clkColor = clkColor;
 
     //按钮变色
     QString styleSheet = QStringLiteral("background:rgb(%1,%2,%3)")
