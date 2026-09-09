@@ -5,6 +5,9 @@
 #include <QRegularExpression>
 //#include <QDebug>
 
+#define Digits R"(\d+)"
+#define Key_ValRex(key, valRex) QStringLiteral("(?<" key ">" valRex ")")  //(?<x>\d+)
+
 CSetting::CSetting(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::CSetting)
@@ -33,10 +36,16 @@ int CSetting::loadCfg()
             break;
 
         QString cfgStr = cfgFile.readAll();
-        const QRegularExpression rex(R"(\((?<x>\d+),(?<y>\d+),(?<width>\d+),(?<height>\d+)\);\((?<red>\d+),(?<green>\d+),(?<blue>\d+)\))");
+        //example:(0,0,400,200);(255,255,0)
+        const QRegularExpression rex(QStringLiteral(R"(\(%1,%2,%3,%4\);\(%5,%6,%7\))")
+                                     .arg(Key_ValRex("x", Digits),
+                                          Key_ValRex("y", Digits),
+                                          Key_ValRex("width", Digits),
+                                          Key_ValRex("height", Digits),
+                                          Key_ValRex("red", Digits),
+                                          Key_ValRex("green", Digits),
+                                          Key_ValRex("blue", Digits)));
         auto match = rex.match(cfgStr);
-        //qDebug() << match;
-
         if (!match.isValid())
             break;  //配置文件损坏
 
@@ -79,8 +88,13 @@ int CSetting::saveCfg()
         return -1;
 
     QString cfgStr = QStringLiteral("(%1,%2,%3,%4);(%5,%6,%7)")
-            .arg(m_clkGeo.x()).arg(m_clkGeo.y()).arg(m_clkGeo.width()).arg(m_clkGeo.height())
-            .arg(m_clkColor.red()).arg(m_clkColor.green()).arg(m_clkColor.blue());
+            .arg(m_clkGeo.x())
+            .arg(m_clkGeo.y())
+            .arg(m_clkGeo.width())
+            .arg(m_clkGeo.height())
+            .arg(m_clkColor.red())
+            .arg(m_clkColor.green())
+            .arg(m_clkColor.blue());
     cfgFile.write(cfgStr.toStdString().c_str());
 
     return 0;
