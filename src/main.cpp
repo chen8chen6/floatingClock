@@ -1,8 +1,25 @@
 #include <QApplication>
 #include <QMenu>
 #include <QSystemTrayIcon>
+#include <QTranslator>
 #include "clock.h"
 #include "setting.h"
+
+void installTranslator(QApplication *app)
+{
+    QTranslator *translator = new QTranslator(app);
+    const QStringList uiLanguages = QLocale::system().uiLanguages();
+    for (const auto &locale : uiLanguages)
+    {
+        const QString baseName = "fltClk_" + QLocale(locale).name();
+        if (translator->load(":/i18n/"+baseName))
+        {
+            app->installTranslator(translator);
+            break;
+        }
+    }
+    return;
+}
 
 void showSettingOnClick(CSetting *setting, QSystemTrayIcon::ActivationReason reason)
 {
@@ -14,14 +31,14 @@ void showSettingOnClick(CSetting *setting, QSystemTrayIcon::ActivationReason rea
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    installTranslator(&a);  //安装翻译器
 
     //悬浮时钟界面
     CClock clock;
     clock.setWindowFlags(clock.windowFlags()
                      | Qt::FramelessWindowHint  //无边框
                      | Qt::WindowStaysOnTopHint //置顶
-                     | Qt::WindowTransparentForInput    //忽略鼠标键盘事件
-                     );
+                     | Qt::WindowTransparentForInput);  //忽略鼠标键盘事件
     clock.setAttribute(Qt::WA_TranslucentBackground);   //窗口透明
 
     //设置界面
@@ -30,8 +47,8 @@ int main(int argc, char *argv[])
     //系统托盘
     QSystemTrayIcon tray(QIcon(":/fltClk.ico"));
     QMenu menu;
-    QAction *actSetting = new QAction(QStringLiteral("设置"), &menu);
-    QAction *actQuit = new QAction(QStringLiteral("退出"), &menu);
+    QAction *actSetting = new QAction(QObject::tr("Setting"), &menu);
+    QAction *actQuit = new QAction(QObject::tr("Quit"), &menu);
     menu.addAction(actSetting);
     menu.addAction(actQuit);
     tray.setContextMenu(&menu);

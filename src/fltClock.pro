@@ -37,3 +37,7 @@ RESOURCES += \
     resource.qrc
 
 RC_ICONS = fltClk.ico
+
+TRANSLATIONS += fltClk_zh_CN.ts
+CONFIG += lrelease
+CONFIG += embed_translations

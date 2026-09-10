@@ -53,4 +53,3 @@ void CClock::showCurTime()
     ui->lcdClock->display(hhmm);
     return;
 }
-
