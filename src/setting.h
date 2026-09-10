@@ -29,8 +29,8 @@ private slots:
     virtual void reject() override;
 
 private:
-    const QRect DEFAULT_CLK_GEO{0,0,400,200};   //时钟黙认位置在左上方
-    const QColor DEFAULT_CLK_COLOR{0,0,0};      //时钟黙认为黒色
+    const QRect DEFAULT_CLK_GEO {0,20,200,100}; //时钟黙认位置在左上方
+    const QColor DEFAULT_CLK_COLOR {255,255,0}; //时钟黙认为黄色
 
     Ui::CSetting *ui;
     QString cfgFilePath(void) const;

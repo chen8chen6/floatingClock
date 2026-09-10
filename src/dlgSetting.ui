@@ -104,6 +104,13 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>xEditor</tabstop>
+  <tabstop>yEditor</tabstop>
+  <tabstop>widthEditor</tabstop>
+  <tabstop>heightEditor</tabstop>
+  <tabstop>btnClockColor</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
