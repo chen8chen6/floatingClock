@@ -4,6 +4,13 @@
 #include "dialog.h"
 #include "setting.h"
 
+void showSettingOnClick(CSetting *setting, QSystemTrayIcon::ActivationReason reason)
+{
+    if (reason == QSystemTrayIcon::ActivationReason::Trigger)
+        setting->show();
+    return;
+}
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
@@ -21,7 +28,7 @@ int main(int argc, char *argv[])
     CSetting setting;
 
     //系统托盘
-    QSystemTrayIcon tray(QIcon(":/fltClk.ico"));    //TODO: 新的ico
+    QSystemTrayIcon tray(QIcon(":/fltClk.ico"));
     QMenu menu;
     QAction *actSetting = new QAction(QStringLiteral("设置"), &menu);
     QAction *actQuit = new QAction(QStringLiteral("退出"), &menu);
@@ -34,6 +41,8 @@ int main(int argc, char *argv[])
     QObject::connect(&setting, &CSetting::sigClkColorChanged, &w, &Dialog::setClkColor);
     QObject::connect(actSetting, &QAction::triggered, [&](){setting.show();});
     QObject::connect(actQuit, &QAction::triggered, [&](){a.quit();});
+    QObject::connect(&tray, &QSystemTrayIcon::activated,
+                     [&](QSystemTrayIcon::ActivationReason reason){showSettingOnClick(&setting, reason);});
 
     //显示所有界面
     if (0 != setting.loadCfg())
