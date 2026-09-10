@@ -110,15 +110,6 @@ int CSetting::saveCfg()
     return 0;
 }
 
-void CSetting::init(const QRect &rect)
-{
-    ui->xEditor->setText(QString::number(rect.x()));
-    ui->yEditor->setText(QString::number(rect.y()));
-    ui->widthEditor->setText(QString::number(rect.width()));
-    ui->heightEditor->setText(QString::number(rect.height()));
-    return;
-}
-
 void CSetting::onGeoEdited()
 {
     QRect newGeo(ui->xEditor->text().toInt(),

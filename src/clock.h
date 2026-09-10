@@ -1,19 +1,19 @@
-#ifndef DIALOG_H
-#define DIALOG_H
+#ifndef CLOCK_H
+#define CLOCK_H
 
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
-namespace Ui { class Dialog; }
+namespace Ui { class CClock; }
 QT_END_NAMESPACE
 
-class Dialog : public QDialog
+class CClock : public QDialog
 {
     Q_OBJECT
 
 public:
-    Dialog(QWidget *parent = nullptr);
-    ~Dialog();
+    CClock(QWidget *parent = nullptr);
+    ~CClock();
 
 public slots:
     void setGeo(const QRect rect);
@@ -23,6 +23,6 @@ private slots:
     void showCurTime(void);
 
 private:
-    Ui::Dialog *ui;
+    Ui::CClock *ui;
 };
-#endif // DIALOG_H
+#endif // CLOCK_H

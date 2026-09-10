@@ -1,7 +1,7 @@
 #include <QApplication>
 #include <QMenu>
 #include <QSystemTrayIcon>
-#include "dialog.h"
+#include "clock.h"
 #include "setting.h"
 
 void showSettingOnClick(CSetting *setting, QSystemTrayIcon::ActivationReason reason)
@@ -16,13 +16,13 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
 
     //悬浮时钟界面
-    Dialog w;
-    w.setWindowFlags(w.windowFlags()
+    CClock clock;
+    clock.setWindowFlags(clock.windowFlags()
                      | Qt::FramelessWindowHint  //无边框
                      | Qt::WindowStaysOnTopHint //置顶
                      | Qt::WindowTransparentForInput    //忽略鼠标键盘事件
                      );
-    w.setAttribute(Qt::WA_TranslucentBackground);   //窗口透明
+    clock.setAttribute(Qt::WA_TranslucentBackground);   //窗口透明
 
     //设置界面
     CSetting setting;
@@ -37,8 +37,8 @@ int main(int argc, char *argv[])
     tray.setContextMenu(&menu);
 
     //信号槽
-    QObject::connect(&setting, &CSetting::sigGeoChanged, &w, &Dialog::setGeo);
-    QObject::connect(&setting, &CSetting::sigClkColorChanged, &w, &Dialog::setClkColor);
+    QObject::connect(&setting, &CSetting::sigGeoChanged, &clock, &CClock::setGeo);
+    QObject::connect(&setting, &CSetting::sigClkColorChanged, &clock, &CClock::setClkColor);
     QObject::connect(actSetting, &QAction::triggered, [&](){setting.show();});
     QObject::connect(actQuit, &QAction::triggered, [&](){a.quit();});
     QObject::connect(&tray, &QSystemTrayIcon::activated,
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
     //显示所有界面
     if (0 != setting.loadCfg())
         setting.show();
-    w.show();
+    clock.show();
     tray.show();
 
     return a.exec();

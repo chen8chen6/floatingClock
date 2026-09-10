@@ -1,36 +1,35 @@
-#include "dialog.h"
-#include "ui_dialog.h"
+#include "clock.h"
+#include "ui_dlgClock.h"
 
 #include <chrono>
-
 #include <QLCDNumber>
 #include <QTimer>
 #include <QTime>
 //#include <QDebug>
 
-Dialog::Dialog(QWidget *parent)
+CClock::CClock(QWidget *parent)
     : QDialog(parent)
-    , ui(new Ui::Dialog)
+    , ui(new Ui::CClock)
 {
     ui->setupUi(this);
 
     QTimer *timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, &Dialog::showCurTime);
+    connect(timer, &QTimer::timeout, this, &CClock::showCurTime);
     timer->start(std::chrono::milliseconds(300));
     showCurTime();
 }
 
-Dialog::~Dialog()
+CClock::~CClock()
 {
     delete ui;
 }
 
-void Dialog::setGeo(const QRect rect)
+void CClock::setGeo(const QRect rect)
 {
     setGeometry(rect);
 }
 
-void Dialog::setClkColor(const QColor clkColor)
+void CClock::setClkColor(const QColor clkColor)
 {
     QString styleSheet = QStringLiteral("color:rgb(%1,%2,%3)")
             .arg(clkColor.red())
@@ -39,7 +38,7 @@ void Dialog::setClkColor(const QColor clkColor)
     ui->lcdClock->setStyleSheet(styleSheet);
 }
 
-void Dialog::showCurTime()
+void CClock::showCurTime()
 {
     static QTime lastTime = QTime();
     const QTime curTime = QTime::currentTime();
