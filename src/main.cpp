@@ -32,13 +32,15 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     installTranslator(&a);  //安装翻译器
+    a.setQuitOnLastWindowClosed(false);
 
     //悬浮时钟界面
     CClock clock;
     clock.setWindowFlags(clock.windowFlags()
-                     | Qt::FramelessWindowHint  //无边框
-                     | Qt::WindowStaysOnTopHint //置顶
-                     | Qt::WindowTransparentForInput);  //忽略鼠标键盘事件
+                         | Qt::FramelessWindowHint  //无边框
+                         | Qt::WindowStaysOnTopHint //置顶
+                         | Qt::Tool                 //不显示任务栏图标
+                         | Qt::WindowTransparentForInput);  //忽略鼠标键盘事件
     clock.setAttribute(Qt::WA_TranslucentBackground);   //窗口透明
 
     //设置界面
